@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>Rg.Plugins.Popup</id>
-        <version>$version$</version>
+        <version>1.0.0</version>
         <title>Popup Page Plugin for Xamarin Forms</title>
         <authors>Kirill Lyubimov</authors>
         <owners>rotorgames</owners>
@@ -21,8 +21,8 @@ Release Notes: https://github.com/rotorgames/Rg.Plugins.Popup/releases</descript
     <files>
       <file src="readme.txt" target="readme.txt" /> 
       <!--PCL-->
-      <file src="..\src\Rg.Plugins.Popup\bin\Release\netstandard1.0\Rg.Plugins.Popup.dll" target="lib\netstandard1.0" />
-      <file src="..\src\Rg.Plugins.Popup\bin\Release\netstandard1.0\Rg.Plugins.Popup.pdb" target="lib\netstandard1.0" />
+      <file src="..\src\Rg.Plugins.Popup\bin\Release\netstandard2.0\Rg.Plugins.Popup.dll" target="lib\netstandard2.0" />
+      <file src="..\src\Rg.Plugins.Popup\bin\Release\netstandard2.0\Rg.Plugins.Popup.pdb" target="lib\netstandard2.0" />
       <!--Android-->
       <file src="..\src\Rg.Plugins.Popup.Droid\bin\Release\Rg.Plugins.Popup.dll" target="lib\MonoAndroid" />
       <file src="..\src\Rg.Plugins.Popup.Droid\bin\Release\Rg.Plugins.Popup.pdb" target="lib\MonoAndroid" />
