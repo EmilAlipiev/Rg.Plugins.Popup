@@ -2,9 +2,9 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>RgPluginsPopup</id>
-        <version>1.0.0</version>
+        <version>1.0.1</version>
         <title>Popup Page Plugin for Xamarin Forms</title>
-        <authors>Kirill Lyubimov</authors>
+        <authors>Emil Alipiev</authors>
         <owners>rotorgames</owners>
         <projectUrl>https://github.com/rotorgames/Rg.Plugins.Popup</projectUrl>
         <iconUrl>https://raw.githubusercontent.com/rotorgames/Rg.Plugins.Popup/master/icons/icon.png</iconUrl>
