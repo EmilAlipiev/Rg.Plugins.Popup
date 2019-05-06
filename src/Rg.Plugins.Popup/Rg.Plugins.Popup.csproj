@@ -2,6 +2,8 @@
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+        <PackageId>PluginsPopup</PackageId>
+        <Authors>PluginsPopup</Authors>
     </PropertyGroup>
     <ItemGroup>
       <PackageReference Include="Xamarin.Forms" Version="3.6.0.344457" />
