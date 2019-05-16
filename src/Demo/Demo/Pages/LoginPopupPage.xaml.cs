@@ -104,10 +104,21 @@ namespace Demo.Pages
 
         private async void OnLogin(object sender, EventArgs e)
         {
-            var loadingPage = new LoadingPopupPage();
-            await Navigation.PushPopupAsync(loadingPage);
-            await Task.Delay(2000);
-            await Navigation.RemovePopupPageAsync(loadingPage);
+            try
+            {
+                using (await Dialogs.Create("Loading", Navigation))
+                {
+                    await Task.Delay(2000);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+            //var loadingPage = new LoadingPopupPage();
+            //await Navigation.PushPopupAsync(loadingPage);
+            //await Task.Delay(2000);
+            //await Navigation.RemovePopupPageAsync(loadingPage);
             await Navigation.PushPopupAsync(new LoginSuccessPopupPage());
         }
 
