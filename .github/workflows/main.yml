@@ -1,0 +1,35 @@
+name: Nuget Package Deploy
+
+on: 
+ push:
+   branches: 
+     - master
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v2     
+    - name: Setup Nuget.exe
+      uses: warrenbuckley/Setup-Nuget@v1
+    - name: Restore Nuget Standard
+      run: nuget restore  scr/Rg.Plugins.Popup/Rg.Plugins.Popup.csproj
+    - name: Restore Nuget Android
+      run: nuget restore  scr/Rg.Plugins.Popup.Droid/Rg.Plugins.Popup.Droid.csproj
+    - name: Restore Nuget IOS
+      run: nuget restore  scr/Rg.Plugins.Popup.IOS/Rg.Plugins.Popup.IOS.csproj
+    - name: Restore Nuget UWP
+      run: nuget restore  scr/Rg.Plugins.Popup.UWP/Rg.Plugins.Popup.UWP.csproj
+    - name: Restore Nuget Tizen
+      run: nuget restore  scr/Rg.Plugins.Popup.Tizen/Rg.Plugins.Popup.Tizen.csproj
+    - name: Setup MSBuild.exe
+      uses: warrenbuckley/Setup-MSBuild@v1
+    - name: Build with dotnet
+      run: msbuild scr/Rg.Plugins.Popup.sln -property:Configuration=Release
+    - name: Setup Nuget.exe
+      uses: warrenbuckley/Setup-Nuget@v1
+    - name: Nuget Pack
+      run:  nuget pack  nuspec/Rg.Plugins.Popup.nuspec
+    - name: Push Package to nuget
+      run: dotnet nuget push **/*.nupkg
+             --api-key ${{ secrets.nugetapikey }}
+             --source https://api.nuget.org/v3/index.json
