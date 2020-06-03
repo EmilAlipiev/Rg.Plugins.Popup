@@ -22,6 +22,11 @@ namespace Rg.Plugins.Popup.Extensions
             return PopupNavigation.Instance.PopAllAsync(animate);
         }
 
+        public static Task PopAllPopupAsync<T>(this INavigation sender, bool animate = true)
+        {
+            return PopupNavigation.Instance.PopAllAsync<T>(animate);
+        }
+
         public static Task RemovePopupPageAsync(this INavigation sender, PopupPage page, bool animate = true)
         {
             return PopupNavigation.Instance.RemovePageAsync(page, animate);
