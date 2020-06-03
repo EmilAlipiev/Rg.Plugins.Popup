@@ -12,7 +12,7 @@
 		{
 			var app = new Program();
             Rg.Plugins.Popup.Tizen.Popup.Init();
-			Xamarin.Forms.Platform.Tizen.Forms.Init(app, true);
+			
 			app.Run(args);
 		}
 	}
