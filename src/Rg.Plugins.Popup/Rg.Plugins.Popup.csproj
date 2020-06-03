@@ -3,7 +3,7 @@
         <TargetFramework>netstandard2.0</TargetFramework>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
         <PackageId>PluginsPopup</PackageId>
-        <Authors>PluginsPopup</Authors>
+        <Authors>EmilAlipiev</Authors>
     </PropertyGroup>
     <ItemGroup>
       <PackageReference Include="Xamarin.Forms" Version="4.4.0.991757" />
