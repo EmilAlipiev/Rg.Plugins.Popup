@@ -8,7 +8,7 @@ using Xamarin.Forms.Internals;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Rg.Plugins.Popup")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Plugin for Xamarin forms. Allows you to open any page as a popup. it is fork from rg.popup.plugin\r\nwith some improvements")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCulture("")]
 
