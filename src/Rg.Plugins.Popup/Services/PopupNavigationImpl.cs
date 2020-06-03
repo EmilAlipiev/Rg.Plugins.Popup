@@ -95,6 +95,21 @@ namespace Rg.Plugins.Popup.Services
             });
         }
 
+        public Task PopAllAsync<T>(bool animate = true)
+        {
+            return InvokeThreadSafe(async () =>
+            {
+                animate = CanBeAnimated(animate);
+
+                if (!PopupStack.Any(p=>p is T))
+                    return;
+
+                var popupTasks = PopupStack.Where(p => p is T).Select(page => RemovePageAsync(page, animate));
+
+                await Task.WhenAll(popupTasks);
+            });
+        }
+
         public Task RemovePageAsync(PopupPage page, bool animate = true)
         {
             return InvokeThreadSafe(async () =>
