@@ -1,15 +1,21 @@
 ﻿using System;
 using System.Threading.Tasks;
+
 using CoreGraphics;
+
 using Foundation;
+
 using Rg.Plugins.Popup.Contracts;
 using Rg.Plugins.Popup.IOS.Extensions;
 using Rg.Plugins.Popup.IOS.Impl;
 using Rg.Plugins.Popup.IOS.Platform;
 using Rg.Plugins.Popup.Pages;
+
 using UIKit;
+
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.iOS;
+
 using XFPlatform = Xamarin.Forms.Platform.iOS.Platform;
 
 [assembly: Dependency(typeof(PopupPlatformIos))]
@@ -36,7 +42,7 @@ namespace Rg.Plugins.Popup.IOS.Impl
 
             page.DescendantRemoved += HandleChildRemoved;
 
-            if(UIApplication.SharedApplication.KeyWindow.WindowLevel == UIWindowLevel.Normal)
+            if (UIApplication.SharedApplication.KeyWindow.WindowLevel == UIWindowLevel.Normal)
                 UIApplication.SharedApplication.KeyWindow.WindowLevel = -1;
 
             var renderer = page.GetOrCreateRenderer();
@@ -60,6 +66,9 @@ namespace Rg.Plugins.Popup.IOS.Impl
 
         public async Task RemoveAsync(PopupPage page)
         {
+            if (page == null)
+                return;
+
             var renderer = XFPlatform.GetRenderer(page);
             var viewController = renderer?.ViewController;
 
@@ -69,14 +78,17 @@ namespace Rg.Plugins.Popup.IOS.Impl
 
             if (renderer != null && viewController != null && !viewController.IsBeingDismissed)
             {
-                var window = viewController.View.Window;
-                await window.RootViewController.DismissViewControllerAsync(false);
-                DisposeModelAndChildrenRenderers(page);
-                window.RootViewController.Dispose();
-                window.RootViewController = null;
-                page.Parent = null;
-                window.Hidden = true;
-                window.Dispose();
+                var window = viewController.View?.Window;
+                if (window?.RootViewController != null)
+                {
+                    await window.RootViewController.DismissViewControllerAsync(false);
+                    DisposeModelAndChildrenRenderers(page);
+                    window.RootViewController.Dispose();
+                    window.RootViewController = null;
+                    page.Parent = null;
+                    window.Hidden = true;
+                    window.Dispose();
+                }
 
                 if (UIApplication.SharedApplication.KeyWindow.WindowLevel == -1)
                     UIApplication.SharedApplication.KeyWindow.WindowLevel = UIWindowLevel.Normal;
@@ -86,8 +98,9 @@ namespace Rg.Plugins.Popup.IOS.Impl
         private void DisposeModelAndChildrenRenderers(VisualElement view)
         {
             IVisualElementRenderer renderer;
-            foreach (VisualElement child in view.Descendants())
+            foreach (var element in view.Descendants())
             {
+                var child = (VisualElement)element;
                 renderer = XFPlatform.GetRenderer(child);
                 XFPlatform.SetRenderer(child, null);
 
@@ -110,7 +123,7 @@ namespace Rg.Plugins.Popup.IOS.Impl
         private void HandleChildRemoved(object sender, ElementEventArgs e)
         {
             var view = e.Element;
-            DisposeModelAndChildrenRenderers((VisualElement) view);
+            DisposeModelAndChildrenRenderers((VisualElement)view);
         }
     }
 }
