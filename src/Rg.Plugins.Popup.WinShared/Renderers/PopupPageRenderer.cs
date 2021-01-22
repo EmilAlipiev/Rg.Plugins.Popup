@@ -18,7 +18,7 @@ using Xamarin.Forms.Platform.WinRT;
 #endif
 using WinPopup = global::Windows.UI.Xaml.Controls.Primitives.Popup;
 
-[assembly:ExportRenderer(typeof(PopupPage), typeof(PopupPageRenderer))]
+[assembly: ExportRenderer(typeof(PopupPage), typeof(PopupPageRenderer))]
 namespace Rg.Plugins.Popup.Windows.Renderers
 {
     [Preserve(AllMembers = true)]
@@ -33,7 +33,7 @@ namespace Rg.Plugins.Popup.Windows.Renderers
         [Preserve]
         public PopupPageRenderer()
         {
-            
+
         }
 
         private void OnKeyboardHiding(InputPane sender, InputPaneVisibilityEventArgs args)
@@ -101,10 +101,8 @@ namespace Rg.Plugins.Popup.Windows.Renderers
             }
         }
 
-        private async void UpdateElementSize()
+        private void UpdateElementSize()
         {
-            await Task.Delay(50);
-
             var windowBound = Window.Current.Bounds;
             var visibleBounds = ApplicationView.GetForCurrentView().VisibleBounds;
             var keyboardHeight = _keyboardBounds != Rect.Empty ? _keyboardBounds.Height : 0;
@@ -121,10 +119,17 @@ namespace Rg.Plugins.Popup.Windows.Renderers
 
             var systemPadding = new Xamarin.Forms.Thickness(left, top, right, bottom);
 
-            CurrentElement.SetValue(PopupPage.SystemPaddingProperty, systemPadding);
-            CurrentElement.SetValue(PopupPage.KeyboardOffsetProperty, keyboardHeight);
-            CurrentElement.Layout(new Rectangle(windowBound.X, windowBound.Y, windowBound.Width, windowBound.Height));
-            CurrentElement.ForceLayout();
+
+            var element = CurrentElement;
+
+            if (element != null)
+            {
+                element.SetValue(PopupPage.SystemPaddingProperty, systemPadding);
+                element.SetValue(PopupPage.KeyboardOffsetProperty, keyboardHeight);
+                element.Layout(new Rectangle(windowBound.X, windowBound.Y, windowBound.Width, windowBound.Height));
+                element.ForceLayout();
+            }
+
         }
     }
 }
