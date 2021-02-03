@@ -70,6 +70,9 @@ namespace Rg.Plugins.Popup.IOS.Impl
                 return;
 
             var renderer = XFPlatform.GetRenderer(page);
+            if (renderer == null)
+                return;
+
             var viewController = renderer?.ViewController;
 
             await Task.Delay(50);
