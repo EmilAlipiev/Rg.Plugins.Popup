@@ -103,8 +103,15 @@ namespace Rg.Plugins.Popup.Windows.Renderers
 
         private void UpdateElementSize()
         {
+            if (Window.Current == null)
+                return;
+
+            var currentView = ApplicationView.GetForCurrentView();
+            if (currentView == null || currentView.VisibleBounds == null)
+                return;
+
             var windowBound = Window.Current.Bounds;
-            var visibleBounds = ApplicationView.GetForCurrentView().VisibleBounds;
+            var visibleBounds = currentView.VisibleBounds;
             var keyboardHeight = _keyboardBounds != Rect.Empty ? _keyboardBounds.Height : 0;
 
             var top = visibleBounds.Top - windowBound.Top;
@@ -122,7 +129,7 @@ namespace Rg.Plugins.Popup.Windows.Renderers
 
             var element = CurrentElement;
 
-            if (element != null)
+            if (element != null && windowBound != null)
             {
                 element.SetValue(PopupPage.SystemPaddingProperty, systemPadding);
                 element.SetValue(PopupPage.KeyboardOffsetProperty, keyboardHeight);
