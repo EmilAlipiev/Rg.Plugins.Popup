@@ -103,38 +103,51 @@ namespace Rg.Plugins.Popup.Windows.Renderers
 
         private void UpdateElementSize()
         {
-            if (Window.Current == null)
-                return;
-
-            var currentView = ApplicationView.GetForCurrentView();
-            if (currentView == null || currentView.VisibleBounds == null)
-                return;
-
-            var windowBound = Window.Current.Bounds;
-            var visibleBounds = currentView.VisibleBounds;
-            var keyboardHeight = _keyboardBounds != Rect.Empty ? _keyboardBounds.Height : 0;
-
-            var top = visibleBounds.Top - windowBound.Top;
-            var bottom = windowBound.Bottom - visibleBounds.Bottom;
-            var left = visibleBounds.Left - windowBound.Left;
-            var right = windowBound.Right - visibleBounds.Right;
-
-            top = Math.Max(0, top);
-            bottom = Math.Max(0, bottom);
-            left = Math.Max(0, left);
-            right = Math.Max(0, right);
-
-            var systemPadding = new Xamarin.Forms.Thickness(left, top, right, bottom);
-
-
-            var element = CurrentElement;
-
-            if (element != null && windowBound != null)
+            try
             {
-                element.SetValue(PopupPage.SystemPaddingProperty, systemPadding);
-                element.SetValue(PopupPage.KeyboardOffsetProperty, keyboardHeight);
-                element.Layout(new Rectangle(windowBound.X, windowBound.Y, windowBound.Width, windowBound.Height));
-                element.ForceLayout();
+                if (Window.Current == null)
+                    return;
+
+                var currentView = ApplicationView.GetForCurrentView();
+                if (currentView == null || currentView.VisibleBounds == null)
+                    return;
+
+                var windowBound = Window.Current.Bounds;
+
+                if (windowBound != null)
+                    return;
+
+                var visibleBounds = currentView.VisibleBounds;
+                if (visibleBounds == null || _keyboardBounds == null)
+                    return;
+
+                var keyboardHeight = _keyboardBounds != Rect.Empty ? _keyboardBounds.Height : 0;
+
+                var top = visibleBounds.Top - windowBound.Top;
+                var bottom = windowBound.Bottom - visibleBounds.Bottom;
+                var left = visibleBounds.Left - windowBound.Left;
+                var right = windowBound.Right - visibleBounds.Right;
+
+                top = Math.Max(0, top);
+                bottom = Math.Max(0, bottom);
+                left = Math.Max(0, left);
+                right = Math.Max(0, right);
+
+                var systemPadding = new Xamarin.Forms.Thickness(left, top, right, bottom);
+
+                var element = CurrentElement;
+
+                if (element != null && windowBound != null)
+                {
+                    element.SetValue(PopupPage.SystemPaddingProperty, systemPadding);
+                    element.SetValue(PopupPage.KeyboardOffsetProperty, keyboardHeight);
+                    element.Layout(new Rectangle(windowBound.X, windowBound.Y, windowBound.Width, windowBound.Height));
+                    element.ForceLayout();
+                }
+            }
+            catch (Exception)
+            {
+                return;
             }
 
         }
