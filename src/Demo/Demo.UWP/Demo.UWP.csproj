@@ -132,10 +132,6 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Rg.Plugins.Popup.UWP\Rg.Plugins.Popup.UWP.csproj">
-      <Project>{2b1508fe-0298-4740-b5d3-6b2bc0f0e08d}</Project>
-      <Name>Rg.Plugins.Popup.UWP</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\Rg.Plugins.Popup\Rg.Plugins.Popup.csproj">
       <Project>{67f9d3a8-f71e-4428-913f-c37ae82cdb24}</Project>
       <Name>Rg.Plugins.Popup</Name>
@@ -159,7 +155,7 @@
       <Version>6.2.8</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.Forms">
-      <Version>4.4.0.991757</Version>
+      <Version>4.5.0.657</Version>
     </PackageReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">

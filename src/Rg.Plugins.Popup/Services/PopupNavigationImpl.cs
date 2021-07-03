@@ -61,7 +61,7 @@ namespace Rg.Plugins.Popup.Services
             {
                 if (_popupStack.Contains(page))
                     return Task.FromResult(false);
-                   
+
                 Pushing?.Invoke(this, new PopupNavigationEventArgs(page, animate));
 
                 _popupStack.Add(page);
@@ -114,6 +114,21 @@ namespace Rg.Plugins.Popup.Services
                     return Task.FromResult(false);
 
                 var popupTasks = PopupStack.ToList().Select(page => RemovePageAsync(page, animate));
+
+                return Task.WhenAll(popupTasks);
+            }
+        }
+
+        public Task PopAllAsync<T>(bool animate = true)
+        {
+            lock (_locker)
+            {
+                animate = CanBeAnimated(animate);
+
+                if (!PopupStack.Any(p => p is T))
+                    return Task.FromResult(false);
+
+                var popupTasks = PopupStack.Where(p => p is T).Select(page => RemovePageAsync(page, animate));
 
                 return Task.WhenAll(popupTasks);
             }
