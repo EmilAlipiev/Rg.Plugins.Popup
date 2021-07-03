@@ -1,38 +1,47 @@
-using System;
-using Xamarin.Forms;
-using Xamarin.Forms.Platform.Tizen;
+﻿using System;
+
+using ElmSharp;
+
 using Rg.Plugins.Popup.Pages;
 using Rg.Plugins.Popup.Tizen.Renderers;
-using ElmSharp;
-using EPopup = ElmSharp.Popup;
+
+using Xamarin.Forms;
+using Xamarin.Forms.Platform.Tizen;
+
 using EColor = ElmSharp.Color;
+using EPopup = ElmSharp.Popup;
 
 [assembly: ExportRenderer(typeof(PopupPage), typeof(PopupPageRenderer))]
 namespace Rg.Plugins.Popup.Tizen.Renderers
 {
     public class PopupPageRenderer : PageRenderer
     {
-        private GestureLayer _gestureLayer;
-        private EPopup _popup;
+        private GestureLayer? _gestureLayer;
+        private EPopup? _popup;
         public PopupPageRenderer()
         {
             RegisterPropertyHandler(Page.TitleProperty, UpdateTitle);
         }
 
-        private PopupPage PopupPage => Element as PopupPage;
-        private Rect? ContentBound => Platform.GetRenderer(PopupPage.Content)?.NativeView.Geometry;
+        private PopupPage PopupPage => (Element as PopupPage)!;
+        private ElmSharp.Rect? ContentBound => Platform.GetRenderer(PopupPage.Content)?.NativeView.Geometry;
 
 
         public void ShowPopup()
         {
-            _popup.BackButtonPressed += OnBackButtonPressed;
-            _popup.Show();
+            if (_popup != null)
+            {
+                _popup.BackButtonPressed += OnBackButtonPressed;
+                _popup.Show();
+            }
         }
-
         public void ClosePopup()
         {
-            _popup.BackButtonPressed -= OnBackButtonPressed;
-            _popup.Hide();
+            if (_popup != null)
+            {
+                _popup.BackButtonPressed -= OnBackButtonPressed;
+                _popup.Hide();
+            }
         }
 
         protected override void OnElementChanged(ElementChangedEventArgs<Page> e)
@@ -51,7 +60,8 @@ namespace Rg.Plugins.Popup.Tizen.Renderers
 
                 _gestureLayer = new GestureLayer(_popup);
                 _gestureLayer.Attach(_popup);
-                _gestureLayer.SetTapCallback(GestureLayer.GestureType.Tap , GestureLayer.GestureState.End, (data) => {
+                _gestureLayer.SetTapCallback(GestureLayer.GestureType.Tap, GestureLayer.GestureState.End, (data) =>
+                {
                     if (ContentBound.HasValue)
                     {
                         var contentBound = ContentBound.Value;
@@ -81,17 +91,17 @@ namespace Rg.Plugins.Popup.Tizen.Renderers
 
         private void OnBackButtonPressed(object sender, EventArgs e)
         {
-            PopupPage.SendBackgroundClick();
+            PopupPage?.SendBackgroundClick();
         }
 
         private void OnOutsideClicked(object sender, EventArgs e)
         {
-            PopupPage.SendBackgroundClick();
+            PopupPage?.SendBackgroundClick();
         }
 
         private void UpdateTitle()
         {
-            _popup.SetPartText("title,text", PopupPage.Title);
+            _popup?.SetPartText("title,text", PopupPage.Title);
         }
     }
 }

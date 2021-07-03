@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Threading.Tasks;
+using System.Windows.Input;
+
 using Rg.Plugins.Popup.Animations;
 using Rg.Plugins.Popup.Enums;
 using Rg.Plugins.Popup.Interfaces.Animations;
 using Rg.Plugins.Popup.Services;
+
 using Xamarin.Forms;
 
 namespace Rg.Plugins.Popup.Pages
@@ -12,26 +15,26 @@ namespace Rg.Plugins.Popup.Pages
     {
         #region Private
 
-        private const string IsAnimatingObsoleteText = 
-            nameof(IsAnimating) + 
+        private const string IsAnimatingObsoleteText =
+            nameof(IsAnimating) +
             " is obsolute as of v1.1.5. Please use "
-            +nameof(IsAnimationEnabled) + 
+            + nameof(IsAnimationEnabled) +
             " instead. See more info: "
-            +Config.MigrationV1_0_xToV1_1_xUrl;
+            + Config.MigrationV1_0_xToV1_1_xUrl;
 
         #endregion
 
         #region Internal Properties
 
-        internal bool IsBeingAppeared { get; set; }
+        internal Task? AppearingTransactionTask { get; set; }
 
-        internal bool IsBeingDismissed { get; set; }
+        internal Task? DisappearingTransactionTask { get; set; }
 
         #endregion
 
         #region Events
 
-        public event EventHandler BackgroundClicked;
+        public event EventHandler? BackgroundClicked;
 
         #endregion
 
@@ -63,7 +66,7 @@ namespace Rg.Plugins.Popup.Pages
             set { SetValue(HasSystemPaddingProperty, value); }
         }
 
-        public static readonly BindableProperty AnimationProperty = BindableProperty.Create(nameof(Animation), typeof(IPopupAnimation), typeof(PopupPage));
+        public static readonly BindableProperty AnimationProperty = BindableProperty.Create(nameof(Animation), typeof(IPopupAnimation), typeof(PopupPage), new ScaleAnimation());
 
         public IPopupAnimation Animation
         {
@@ -76,7 +79,7 @@ namespace Rg.Plugins.Popup.Pages
         public Thickness SystemPadding
         {
             get { return (Thickness)GetValue(SystemPaddingProperty); }
-            private set { SetValue(SystemPaddingProperty, value); }
+            internal set { SetValue(SystemPaddingProperty, value); }
         }
 
         public static readonly BindableProperty SystemPaddingSidesProperty = BindableProperty.Create(nameof(SystemPaddingSides), typeof(PaddingSide), typeof(PopupPage), PaddingSide.All);
@@ -119,6 +122,30 @@ namespace Rg.Plugins.Popup.Pages
             private set { SetValue(KeyboardOffsetProperty, value); }
         }
 
+        public static readonly BindableProperty BackgroundClickedCommandProperty = BindableProperty.Create(nameof(BackgroundClickedCommand), typeof(ICommand), typeof(PopupPage));
+
+        public ICommand BackgroundClickedCommand
+        {
+            get => (ICommand)GetValue(BackgroundClickedCommandProperty);
+            set => SetValue(BackgroundClickedCommandProperty, value);
+        }
+
+        public static readonly BindableProperty BackgroundClickedCommandParameterProperty = BindableProperty.Create(nameof(BackgroundClickedCommandParameter), typeof(object), typeof(PopupPage));
+
+        public object BackgroundClickedCommandParameter
+        {
+            get => GetValue(BackgroundClickedCommandParameterProperty);
+            set => SetValue(BackgroundClickedCommandParameterProperty, value);
+        }
+
+        public static readonly BindableProperty AndroidTalkbackAccessibilityWorkaroundProperty = BindableProperty.Create(nameof(AndroidTalkbackAccessibilityWorkaround), typeof(bool), typeof(PopupPage), false);
+
+        public bool AndroidTalkbackAccessibilityWorkaround
+        {
+            get => (bool)GetValue(AndroidTalkbackAccessibilityWorkaroundProperty);
+            set => SetValue(AndroidTalkbackAccessibilityWorkaroundProperty, value);
+        }
+
         #endregion
 
         #region Main Methods
@@ -126,10 +153,9 @@ namespace Rg.Plugins.Popup.Pages
         public PopupPage()
         {
             BackgroundColor = Color.FromHex("#80000000");
-            Animation = new ScaleAnimation();
         }
 
-        protected override void OnPropertyChanged(string propertyName = null)
+        protected override void OnPropertyChanged(string? propertyName = null)
         {
             base.OnPropertyChanged(propertyName);
 
@@ -138,14 +164,15 @@ namespace Rg.Plugins.Popup.Pages
                 case nameof(HasSystemPadding):
                 case nameof(HasKeyboardOffset):
                 case nameof(SystemPaddingSides):
-                    ForceLayout();
-                    break;
+                case nameof(SystemPadding):
+                ForceLayout();
+                break;
                 case nameof(IsAnimating):
-                    IsAnimationEnabled = IsAnimating;
-                    break;
+                IsAnimationEnabled = IsAnimating;
+                break;
                 case nameof(IsAnimationEnabled):
-                    IsAnimating = IsAnimationEnabled;
-                    break;
+                IsAnimating = IsAnimationEnabled;
+                break;
             }
         }
 
@@ -160,7 +187,7 @@ namespace Rg.Plugins.Popup.Pages
 
         protected override void LayoutChildren(double x, double y, double width, double height)
         {
-            if(HasSystemPadding)
+            if (HasSystemPadding)
             {
                 var systemPadding = SystemPadding;
                 var systemPaddingSide = SystemPaddingSides;
@@ -187,7 +214,7 @@ namespace Rg.Plugins.Popup.Pages
                 else
                     height -= top + bottom;
             }
-            else if(HasKeyboardOffset)
+            else if (HasKeyboardOffset)
             {
                 height -= KeyboardOffset;
             }
@@ -288,10 +315,13 @@ namespace Rg.Plugins.Popup.Pages
 
         #region Internal Methods
 
-        internal async void SendBackgroundClick()
+        internal async Task SendBackgroundClick()
         {
             BackgroundClicked?.Invoke(this, EventArgs.Empty);
-
+            if (BackgroundClickedCommand?.CanExecute(BackgroundClickedCommandParameter) == true)
+            {
+                BackgroundClickedCommand.Execute(BackgroundClickedCommandParameter);
+            }
             var isClose = OnBackgroundClicked();
             if (isClose)
             {

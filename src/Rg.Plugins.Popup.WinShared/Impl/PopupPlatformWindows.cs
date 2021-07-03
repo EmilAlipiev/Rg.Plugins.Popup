@@ -5,20 +5,19 @@ using Rg.Plugins.Popup.Contracts;
 using Rg.Plugins.Popup.Pages;
 using Rg.Plugins.Popup.Services;
 using Rg.Plugins.Popup.Windows.Renderers;
-using Rg.Plugins.Popup.WinPhone.Impl;
+using Rg.Plugins.Popup.Windows.Impl;
 using Xamarin.Forms;
 using Xamarin.Forms.Internals;
 using XPlatform = Xamarin.Forms.Platform.UWP.Platform;
 using Xamarin.Forms.Platform.UWP;
 using Windows.UI.Core;
 using Rg.Plugins.Popup.Exceptions;
- 
 
-[assembly: Dependency(typeof(PopupPlatformWinPhone))]
-namespace Rg.Plugins.Popup.WinPhone.Impl
+[assembly: Dependency(typeof(PopupPlatformWindows))]
+namespace Rg.Plugins.Popup.Windows.Impl
 {
     [Preserve(AllMembers = true)]
-    class PopupPlatformWinPhone : IPopupPlatform
+    class PopupPlatformWindows : IPopupPlatform
     {
         private IPopupNavigation PopupNavigationInstance => PopupNavigation.Instance;
 
@@ -33,7 +32,7 @@ namespace Rg.Plugins.Popup.WinPhone.Impl
         public bool IsSystemAnimationEnabled => true;
 
         [Preserve]
-        public PopupPlatformWinPhone()
+        public PopupPlatformWindows()
         {
             SystemNavigationManager.GetForCurrentView().BackRequested += OnBackRequested;
         }

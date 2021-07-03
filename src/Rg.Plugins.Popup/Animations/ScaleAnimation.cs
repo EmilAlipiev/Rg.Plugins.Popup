@@ -19,7 +19,7 @@ namespace Rg.Plugins.Popup.Animations
         public MoveAnimationOptions PositionIn { get; set; }
         public MoveAnimationOptions PositionOut { get; set; }
 
-        public ScaleAnimation():this(MoveAnimationOptions.Center, MoveAnimationOptions.Center) {}
+        public ScaleAnimation() : this(MoveAnimationOptions.Center, MoveAnimationOptions.Center) { }
 
         public ScaleAnimation(MoveAnimationOptions positionIn, MoveAnimationOptions positionOut)
         {
@@ -34,24 +34,24 @@ namespace Rg.Plugins.Popup.Animations
 
         public override void Preparing(View content, PopupPage page)
         {
-            if(HasBackgroundAnimation) base.Preparing(content, page);
+            if (HasBackgroundAnimation) base.Preparing(content, page);
 
-            page.IsVisible = false;
+            HidePage(page);
 
-            if(content == null) return;
+            if (content == null) return;
 
             UpdateDefaultProperties(content);
 
-            if(!HasBackgroundAnimation) content.Opacity = 0;
+            if (!HasBackgroundAnimation) content.Opacity = 0;
         }
 
         public override void Disposing(View content, PopupPage page)
         {
             if (HasBackgroundAnimation) base.Disposing(content, page);
 
-            page.IsVisible = true;
+            ShowPage(page);
 
-            if(content == null) return;
+            if (content == null) return;
 
             content.Scale = _defaultScale;
             content.Opacity = _defaultOpacity;
@@ -94,7 +94,7 @@ namespace Rg.Plugins.Popup.Animations
                 }
             }
 
-            page.IsVisible = true;
+            ShowPage(page);
 
             await Task.WhenAll(taskList);
         }
@@ -138,7 +138,7 @@ namespace Rg.Plugins.Popup.Animations
         private Task Scale(View content, Easing easing, double start, double end, bool isAppearing)
         {
             TaskCompletionSource<bool> task = new TaskCompletionSource<bool>();
-            
+
             content.Animate("popIn", d =>
             {
                 content.Scale = d;
@@ -156,6 +156,8 @@ namespace Rg.Plugins.Popup.Animations
         {
             _defaultScale = content.Scale;
             _defaultOpacity = content.Opacity;
+            if (double.IsNaN(_defaultOpacity))
+                _defaultOpacity = 1;
             _defaultTranslationX = content.TranslationX;
             _defaultTranslationY = content.TranslationY;
         }

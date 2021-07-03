@@ -1,12 +1,12 @@
+﻿using System;
 using Rg.Plugins.Popup.Tizen.Impl;
 using Rg.Plugins.Popup.Tizen.Renderers;
-using System;
 
 namespace Rg.Plugins.Popup.Tizen
 {
     public static class Popup
     {
-        internal static event EventHandler OnInitialized;
+        internal static event EventHandler? OnInitialized;
 
         internal static bool IsInitialized { get; private set; }
 

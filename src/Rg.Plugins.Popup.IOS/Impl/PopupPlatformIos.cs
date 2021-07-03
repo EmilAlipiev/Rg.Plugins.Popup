@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 using CoreGraphics;
@@ -6,6 +8,7 @@ using CoreGraphics;
 using Foundation;
 
 using Rg.Plugins.Popup.Contracts;
+using Rg.Plugins.Popup.Exceptions;
 using Rg.Plugins.Popup.IOS.Extensions;
 using Rg.Plugins.Popup.IOS.Impl;
 using Rg.Plugins.Popup.IOS.Platform;
@@ -24,7 +27,12 @@ namespace Rg.Plugins.Popup.IOS.Impl
     [Preserve(AllMembers = true)]
     internal class PopupPlatformIos : IPopupPlatform
     {
-        private bool IsiOS9OrNewer => UIDevice.CurrentDevice.CheckSystemVersion(9, 0);
+        // It's necessary because GC in Xamarin.iOS 13 removes all UIWindow if there are not any references to them. See #459
+        private readonly List<UIWindow> _windows = new List<UIWindow>();
+
+        private static bool IsiOS9OrNewer => UIDevice.CurrentDevice.CheckSystemVersion(9, 0);
+
+        private static bool IsiOS13OrNewer => UIDevice.CurrentDevice.CheckSystemVersion(13, 0);
 
         public event EventHandler OnInitialized
         {
@@ -36,7 +44,7 @@ namespace Rg.Plugins.Popup.IOS.Impl
 
         public bool IsSystemAnimationEnabled => true;
 
-        public async Task AddAsync(PopupPage page)
+        public Task AddAsync(PopupPage page)
         {
             page.Parent = Application.Current.MainPage;
 
@@ -47,32 +55,39 @@ namespace Rg.Plugins.Popup.IOS.Impl
 
             var renderer = page.GetOrCreateRenderer();
 
-            var window = new PopupWindow
+            PopupWindow window;
+            if (IsiOS13OrNewer)
             {
-                BackgroundColor = Color.Transparent.ToUIColor()
-            };
+                var connectedScene = UIApplication.SharedApplication.ConnectedScenes.ToArray().FirstOrDefault(x => x.ActivationState == UISceneActivationState.ForegroundActive);
+                if (connectedScene != null && connectedScene is UIWindowScene windowScene)
+                    window = new PopupWindow(windowScene);
+                else
+                    window = new PopupWindow();
+
+                _windows.Add(window);
+            }
+            else
+                window = new PopupWindow();
+
+            window.BackgroundColor = Color.Transparent.ToUIColor();
             window.RootViewController = new PopupPlatformRenderer(renderer);
-            window.RootViewController.View.BackgroundColor = Color.Transparent.ToUIColor();
+            if (window.RootViewController.View != null)
+                window.RootViewController.View.BackgroundColor = Color.Transparent.ToUIColor();
             window.WindowLevel = UIWindowLevel.Normal;
             window.MakeKeyAndVisible();
 
             if (!IsiOS9OrNewer)
-            {
                 window.Frame = new CGRect(0, 0, UIScreen.MainScreen.Bounds.Width, UIScreen.MainScreen.Bounds.Height);
-            }
 
-            await window.RootViewController.PresentViewControllerAsync(renderer.ViewController, false);
+            return window.RootViewController.PresentViewControllerAsync(renderer.ViewController, false);
         }
 
         public async Task RemoveAsync(PopupPage page)
         {
             if (page == null)
-                return;
+                throw new RGPageInvalidException("Popup page is null");
 
             var renderer = XFPlatform.GetRenderer(page);
-            if (renderer == null)
-                return;
-
             var viewController = renderer?.ViewController;
 
             await Task.Delay(50);
@@ -82,28 +97,36 @@ namespace Rg.Plugins.Popup.IOS.Impl
             if (renderer != null && viewController != null && !viewController.IsBeingDismissed)
             {
                 var window = viewController.View?.Window;
-                if (window?.RootViewController != null)
+                page.Parent = null;
+                if (window != null)
                 {
-                    await window.RootViewController.DismissViewControllerAsync(false);
-                    DisposeModelAndChildrenRenderers(page);
-                    window.RootViewController.Dispose();
+                    var rvc = window.RootViewController;
+                    if (rvc != null)
+                    {
+                        await rvc.DismissViewControllerAsync(false);
+                        DisposeModelAndChildrenRenderers(page);
+                        rvc.Dispose();
+                    }
                     window.RootViewController = null;
-                    page.Parent = null;
                     window.Hidden = true;
+                    if (IsiOS13OrNewer && _windows.Contains(window))
+                        _windows.Remove(window);
                     window.Dispose();
+                    window = null;
                 }
 
-                if (UIApplication.SharedApplication.KeyWindow.WindowLevel == -1)
+                if(_windows.Count > 0)
+                    _windows.Last().WindowLevel = UIWindowLevel.Normal;
+                else if (UIApplication.SharedApplication.KeyWindow.WindowLevel == -1)
                     UIApplication.SharedApplication.KeyWindow.WindowLevel = UIWindowLevel.Normal;
             }
         }
 
-        private void DisposeModelAndChildrenRenderers(VisualElement view)
+        private static void DisposeModelAndChildrenRenderers(VisualElement view)
         {
             IVisualElementRenderer renderer;
-            foreach (var element in view.Descendants())
+            foreach (VisualElement child in view.Descendants())
             {
-                var child = (VisualElement)element;
                 renderer = XFPlatform.GetRenderer(child);
                 XFPlatform.SetRenderer(child, null);
 
