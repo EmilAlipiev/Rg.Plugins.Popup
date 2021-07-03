@@ -3,7 +3,7 @@ name: Nuget Package Deploy
 on: 
  push:
    branches: 
-     - master
+     - SdkstyleProject
 jobs:
   build:
     runs-on: windows-latest
@@ -12,13 +12,11 @@ jobs:
     - name: Setup NuGet.exe 
       uses: NuGet/setup-nuget@v1.0.5
     - name: Restore Nuget Standard
-      run: nuget restore src/Rg.Plugins.Popup.sln 
+      run: nuget restore src/Rg.Plugins.Popup/Rg.Plugins.Popup.csproj
     - name: setup-msbuild
       uses: microsoft/setup-msbuild@v1
     - name: Build with dotnet
-      run: msbuild src/Rg.Plugins.Popup.sln -property:Configuration=Release
-    - name: Nuget Pack
-      run:  nuget pack  nuspec/Rg.Plugins.Popup.nuspec
+      run: msbuild src/Rg.Plugins.Popup/Rg.Plugins.Popup.csproj -property:Configuration=Release   
     - name: Push Package to nuget
       run: dotnet nuget push **/*.nupkg
              --api-key ${{ secrets.nugetapikey }}
