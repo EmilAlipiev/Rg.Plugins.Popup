@@ -141,7 +141,6 @@
 		<None Include="Resources\*.cs" />
 		<Compile Remove="Resources\*.cs" />
 		<Compile Update="**\*.xaml.cs" DependentUpon="%(Filename)" />
-		<None Include="readme.txt" pack="true" PackagePath="." />
 	</ItemGroup>
 
 	<ItemGroup Condition=" $(TargetFramework.StartsWith('netstandard')) ">
