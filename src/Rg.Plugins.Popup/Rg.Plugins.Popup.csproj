@@ -19,7 +19,7 @@
 
 		<RepositoryType>git</RepositoryType>
 		<Product>$(AssemblyName) ($(TargetFramework))</Product>
-		<Version>1.1.5-beta</Version>
+		<Version>1.1.7-beta</Version>
 
 		<PackageProjectUrl>https://github.com/EmilAlipiev/Rg.Plugins.Popup</PackageProjectUrl>
 		<PackageTags>Xamarin.Forms xamarin forms popup page modal</PackageTags>
